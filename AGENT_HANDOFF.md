@@ -42,6 +42,10 @@ Ardından standart npm test ile doğrulama tamamlandı.
 ## Etkilenen dosya
 - src/lib/x-api/client.ts
 
+## Süreç güncellemesi
+- Proje köküne `AGENTS.md` eklendi.
+- Handoff üretimi/güncellemesi kalıcı kural haline getirildi.
+
 ## Sonraki agent için takip listesi
 1. Kullanıcıdan akışı tekrar denemesini iste ve aynı hata devam ediyor mu doğrula.
 2. Hata devam ederse tarayıcı konsolundaki ilk CORS/fetch hatasını ve ilgili ağ isteği detayını al.
