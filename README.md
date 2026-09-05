@@ -37,7 +37,7 @@ The feature modules under `src/features` handle authentication and reset plannin
 1. Create an X developer project/app with the necessary API access. Select a **Single Page App (public client)** with OAuth 2.0 enabled. Do not configure a confidential web client or put a client secret in this repository.
 2. Register the exact production callback: `https://x-account-reset.bfn.tr/callback/`.
 3. For local authentication register `http://127.0.0.1:5173/callback/`. Current X app documentation specifies loopback IP instead of `localhost`. The UI can be viewed at `http://localhost:5173`, but start authentication at `http://127.0.0.1:5173` so origin and session storage match.
-4. Copy only the **public Client ID** into your build environment.
+4. Enter only the **public Client ID** in the connection form on the landing page. It is saved in this tab's `sessionStorage` when you connect, survives the OAuth round trip, and is removed by Clear local data or Disconnect. No rebuild or server storage is required. `VITE_X_CLIENT_ID` remains an optional public default.
 5. Configure allowed read/write permissions and API billing/access in X. Existence of an endpoint does not guarantee that an individual app can use it.
 
 Authorization: `https://x.com/i/oauth2/authorize`. Token exchange: `https://api.x.com/2/oauth2/token`. API base: `https://api.x.com/2`.
@@ -58,7 +58,7 @@ cp .env.example .env
 npm run dev
 ```
 
-On PowerShell use `Copy-Item .env.example .env`. Open `http://127.0.0.1:5173`. Without a Client ID the complete landing page works and connection displays a configuration message.
+On PowerShell use `Copy-Item .env.example .env`. Open `http://127.0.0.1:5173`. Enter your public Client ID in the landing page connection form. The form shows the exact callback to register with X. No environment variable is required for the Client ID.
 
 ```sh
 npm run typecheck
@@ -74,11 +74,11 @@ Vitest covers PKCE's RFC test vector, state rejection, storage/expiry/clearing, 
 
 | Variable              | Purpose                                                                           |
 | --------------------- | --------------------------------------------------------------------------------- |
-| `VITE_X_CLIENT_ID`    | Public X OAuth Client ID; required to connect                                     |
+| `VITE_X_CLIENT_ID`    | Optional public default; can be entered or overridden in the UI                   |
 | `VITE_X_REDIRECT_URI` | Exact same-origin callback, production `https://x-account-reset.bfn.tr/callback/` |
 | `VITE_GITHUB_URL`     | Public repository link; defaults to this repository                               |
 
-Every `VITE_*` value is bundled publicly. Never add a secret. `.env` files are ignored. Build again after changing variables; environment changes do not modify an already built bundle.
+Every `VITE_*` value is bundled publicly. Never add a secret. `.env` files are ignored. Build again after changing build variables; environment changes do not modify an already built bundle. IDs entered in the UI take effect immediately without rebuilding.
 
 ## Cloudflare Pages deployment
 
@@ -88,7 +88,7 @@ This project targets **Cloudflare Pages static hosting**, as requested. GitHub A
 2. Select the repository and production branch `main`.
 3. Framework: React (Vite). Root directory: repository root. Output directory: **`dist`**.
 4. Build command: **`npm run typecheck && npm run lint && npm test && npm run build`**. Pages installs dependencies; the committed npm lockfile makes installation reproducible. Tests are in the Pages build command so a separate GitHub CI run cannot race ahead of a failing deployment check.
-5. Set `NODE_VERSION=22`, `VITE_X_CLIENT_ID`, `VITE_X_REDIRECT_URI=https://x-account-reset.bfn.tr/callback/`, and optionally `VITE_GITHUB_URL` in production build variables.
+5. Set `NODE_VERSION=22`, optionally `VITE_X_CLIENT_ID`, `VITE_X_REDIRECT_URI=https://x-account-reset.bfn.tr/callback/`, and optionally `VITE_GITHUB_URL` in production build variables.
 6. Save and deploy. No bindings, functions, database, or secrets are required. Leave Client ID unset for preview deployments unless they use a separate registered X app/callback.
 
 `public/_headers` supplies a restrictive CSP, no-referrer, nosniff, clickjacking protection, permissions policy, and no-store for pages. Hashed assets are immutable. `public/_redirects` rewrites both callback variants to the application; the build also creates `dist/callback/index.html` as a static fallback. No arbitrary client routes are required. Verify `/callback/` loads on a fresh direct request before enabling authentication. Callback tokens/codes must never be copied into issue reports or screenshots.
@@ -157,4 +157,4 @@ Open a focused issue or pull request. Explain the user-visible behavior and vali
 
 ## Hosted release status
 
-The repository is configured for Cloudflare Pages, but no Cloudflare project or live deployment was created by this implementation. Supply the public Client ID and connect the Git repository in your own Cloudflare account. The browser-only X compatibility limitation remains regardless of hosting provider.
+The repository is configured for Cloudflare Pages, but no Cloudflare project or live deployment was created by this implementation. Connect the Git repository in your own Cloudflare account. Enter the public Client ID in the deployed app. The browser-only X compatibility limitation remains regardless of hosting provider.

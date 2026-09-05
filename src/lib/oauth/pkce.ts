@@ -1,3 +1,4 @@
+import { getClientId, getRedirectUri } from "./config";
 import { PREFIX, SessionTokenStorage } from "../storage/tokens";
 export const SCOPES = [
   "tweet.read",
@@ -42,13 +43,11 @@ export function validateState(
     );
 }
 export function config() {
-  const clientId = import.meta.env.VITE_X_CLIENT_ID as string | undefined;
-  const redirect =
-    (import.meta.env.VITE_X_REDIRECT_URI as string | undefined) ||
-    location.origin + "/callback/";
+  const clientId = getClientId();
+  const redirect = getRedirectUri();
   if (!clientId)
     throw new Error(
-      "Connection is not configured. Set the public VITE_X_CLIENT_ID and rebuild the site.",
+      "Enter your public X OAuth Client ID on the connection form.",
     );
   const url = new URL(redirect);
   if (
@@ -72,6 +71,7 @@ export async function connect() {
       verifier: pkce.verifier,
       created: Date.now(),
       redirect,
+      clientId,
     }),
   );
   const url = new URL(AUTH_URL);
@@ -98,6 +98,7 @@ export async function finishOAuth() {
     verifier?: string;
     created?: number;
     redirect?: string;
+    clientId?: string;
   } = {};
   try {
     saved = JSON.parse(raw ?? "{}") as typeof saved;
@@ -110,7 +111,7 @@ export async function finishOAuth() {
   if (!saved.verifier || !saved.created || Date.now() - saved.created > 600000)
     throw new Error("OAuth session expired. Connect again.");
   const { clientId, redirect } = config();
-  if (redirect !== saved.redirect)
+  if (redirect !== saved.redirect || clientId !== saved.clientId)
     throw new Error("OAuth callback configuration changed. Connect again.");
   let response: Response;
   try {

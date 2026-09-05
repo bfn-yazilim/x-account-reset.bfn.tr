@@ -15,20 +15,19 @@ import {
   KeyRound,
 } from "lucide-react";
 import { useState } from "react";
+import { getClientId, getRedirectUri, saveClientId } from "../lib/oauth/config";
 import { connect } from "../lib/oauth/pkce";
 import { probeBrowserAccess } from "../lib/x-api/client";
 import { categories } from "../features/reset/selection";
 export function Landing() {
+  const [clientId, setClientId] = useState(() => getClientId());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   async function start() {
     setBusy(true);
     setError("");
     try {
-      if (!import.meta.env.VITE_X_CLIENT_ID)
-        throw new Error(
-          "Connection is not configured yet. The site owner must set VITE_X_CLIENT_ID and rebuild.",
-        );
+      saveClientId(clientId);
       if (!(await probeBrowserAccess()))
         throw new Error(
           "X did not confirm direct browser access. Account connection is disabled because CORS or network restrictions prevent a verified connection. This app never uses a proxy.",
@@ -57,14 +56,41 @@ export function Landing() {
           <br className="desktop" /> with your privacy intact and you in
           control.
         </p>
-        <button
-          className="primary connect"
-          onClick={() => void start()}
-          disabled={busy}
+        <form
+          className="connection-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void start();
+          }}
         >
-          {busy ? "Checking browser access..." : "Connect X Account"}
-          <ArrowRight size={18} />
-        </button>
+          <label htmlFor="client-id">Your public X OAuth Client ID</label>
+          <input
+            id="client-id"
+            name="client-id"
+            value={clientId}
+            onChange={(event) => setClientId(event.target.value)}
+            disabled={busy}
+            required
+            autoComplete="off"
+            spellCheck={false}
+            placeholder="Paste your Client ID"
+            aria-describedby="client-id-help"
+          />
+          <p id="client-id-help">
+            From your X Developer app (Single Page App). Not your API key or
+            client secret. Saved only in this tab's session storage; Clear local
+            data removes it.
+          </p>
+          <p>
+            Register this exact callback in your X app:
+            <br />
+            <code>{getRedirectUri()}</code>
+          </p>
+          <button type="submit" className="primary connect" disabled={busy}>
+            {busy ? "Checking browser access..." : "Connect X Account"}
+            <ArrowRight size={18} />
+          </button>
+        </form>
         <p className="small secure">
           <LockKeyhole size={13} /> Secure OAuth connection. No password needed.
         </p>

@@ -727,3 +727,39 @@ summary {
 .selection p {
   font-size: 14px;
 }
+.connection-form {
+  max-width: 460px;
+  margin: 25px auto;
+  text-align: left;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.connection-form label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 9px;
+}
+.connection-form input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+.connection-form p {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+.connection-form code {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+.connection-form button {
+  width: 100%;
+}
