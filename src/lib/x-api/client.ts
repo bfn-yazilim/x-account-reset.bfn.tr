@@ -133,7 +133,7 @@ export async function probeBrowserAccess(
   signal?: AbortSignal,
 ) {
   try {
-    const response = await fetch("https://api.x.com/2" + path, {
+    await fetch("https://api.x.com/2" + path, {
       method: "OPTIONS",
       headers: { Authorization: "Bearer cors-capability-probe" },
       credentials: "omit",
@@ -141,7 +141,10 @@ export async function probeBrowserAccess(
         ? AbortSignal.any([signal, AbortSignal.timeout(10000)])
         : AbortSignal.timeout(10000),
     });
-    return response.ok;
+    // Any HTTP response means the browser reached X and CORS did not hard-fail.
+    // We intentionally do not require a 2xx status because unauthenticated
+    // probe requests may return 4xx even when real authenticated calls are possible.
+    return true;
   } catch {
     return false;
   }
